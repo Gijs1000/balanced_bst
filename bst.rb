@@ -35,38 +35,35 @@ class Tree
   end
 
 
+  def go_left(current_node, int_node)
+    if current_node.left.nil?
+      current_node.left = int_node
+    elsif int_node.data < current_node.left.data
+      go_left(current_node.left, int_node)
+    else
+      temp_node = current_node.left
+      current_node.left = int_node
+      temp_node.data < current_node.left.data ? current_node.left.left = temp_node : current_node.left.right = temp_node
+    end
+  end
 
+  def go_right(current_node, int_node)
+    if current_node.right.nil?
+      current_node.right = int_node
+    elsif int_node.data > current_node.right.data
+      go_right(current_node.right, int_node)
+    else
+      temp_node = current_node.right
+      current_node.right = int_node
+      temp_node.data < current_node.right.data ? current_node.right.left = temp_node : current_node.right.right = temp_node
+    end
+  end
 
   def insert(int, current_node = @root, inserted = false)
     int_node = Node.new(int)
     until current_node.nil? # keep going until we have reached the end of a branch
       return if duplicate_value?(int, current_node) # doesn't allow to add a value that is already in the tree
-
-      if int < current_node.data
-        if current_node.left == nil
-          current_node.left = int_node
-          return 
-        elsif int < current_node.left.data
-          current_node = current_node.left
-        else
-          temp_node = current_node.left
-          current_node.left = int_node
-          temp_node.data < current_node.left.data ? current_node.left.left = temp_node : current_node.left.right = temp_node
-          return
-        end
-      else
-        if current_node.right == nil
-          current_node.right = int_node
-          return
-        elsif int > current_node.right.data
-          current_node = current_node.right
-        else
-          temp_node = current_node.right
-          current_node.right = int_node
-          temp_node.data < current_node.right.data ? current_node.right.left = temp_node : current_node.right.right = temp_node
-          return
-        end
-      end
+      return int < current_node.data ? go_left(current_node, int_node) : go_right(current_node, int_node)
     end
     current_node = int_node
   end
@@ -98,8 +95,8 @@ tree = Tree.new
 p arr = [2,3,4,5,7,8,19, 12, 12]
 tree.build_tree(arr)
 tree.pretty_print
-tree.insert(7)
-# tree.insert(6)
+tree.insert(6)
+tree.insert(11)
 tree.pretty_print
 
 
