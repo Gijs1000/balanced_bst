@@ -8,6 +8,10 @@ class Node
     @left = nil
     @right = nil
   end
+
+  def is_childless
+    @left.nil? && @right.nil?
+  end
 end
 
 class Tree
@@ -34,7 +38,51 @@ class Tree
     array = array.uniq.sort
   end
 
+  def insert(int, current_node = @root)
+    int_node = Node.new(int)
+    until current_node.nil? # keep going until we have reached the end of a branch
+      return if duplicate_value?(int, current_node) # doesn't allow to add a value that is already in the tree
+      return int < current_node.data ? go_left(current_node, int_node) : go_right(current_node, int_node)
+    end
+    current_node = int_node
+  end
 
+
+
+  def delete(int, current_node = @root)
+    # fix edge case where there is only root and one value in one branch
+
+    if current_node.left.data == int
+      if current_node.left.is_childless
+        current_node.left = nil # value to remove is leaf
+      else # node has one child
+        current_node.left.left.nil? ? current_node.left = current_node.left.right : current_node.left = current_node.left.left
+      # TO-DO: case where node has two children. Need to find in-order successor.
+      
+      end
+
+    elsif current_node.right.data == int
+      if current_node.right.is_childless
+        current_node.right = nil # value to remove is leaf
+      else # node has one child
+        current_node.right.left.nil? ? current_node.right = current_node.right.right : current_node.right = current_node.right.left
+      # TO-DO: case where node has two children. Need to find in-order successor.
+
+      end
+
+    else
+      int < current_node.data ? current_node = current_node.left : current_node = current_node.right
+      delete(int, current_node)
+    end
+  end
+
+  def find(int, current_node = @root)
+    return current_node if current_node.data == int
+    return false if current_node.is_childless
+    int < current_node.data ? current_node = current_node.left : current_node = current_node.right
+    find(int, current_node)
+  end
+    
   def go_left(current_node, int_node)
     if current_node.left.nil?
       current_node.left = int_node
@@ -59,15 +107,6 @@ class Tree
     end
   end
 
-  def insert(int, current_node = @root, inserted = false)
-    int_node = Node.new(int)
-    until current_node.nil? # keep going until we have reached the end of a branch
-      return if duplicate_value?(int, current_node) # doesn't allow to add a value that is already in the tree
-      return int < current_node.data ? go_left(current_node, int_node) : go_right(current_node, int_node)
-    end
-    current_node = int_node
-  end
-
   def duplicate_value?(int, node)
     if int == node.data 
       puts "\nerror, cannot insert duplicate value #{int}\n\n"
@@ -80,25 +119,31 @@ class Tree
     puts "#{prefix}#{is_left ? '└── ' : '┌── '}#{node.data}"
     pretty_print(node.left, "#{prefix}#{is_left ? '    ' : '│   '}", true) if node.left
   end
+
+  def level_order(current_node = @root, lo_array = [], queue = [])
+    return lo_array if current_node.nil? # lo_array stands for level-order array
+  
+    lo_array << current_node.data
+    queue << current_node.left unless current_node.left.nil?
+    queue << current_node.right unless current_node.right.nil?
+    level_order(queue.shift, lo_array, queue)
+  end
+
+  def inorder
+      
+    
+
+
+
+
 end
 
-    # start at root
-    # if int is bigger, goes right
-    # if smaller goes left
-    # repeat unless
-    #   int is smaller than root but bigger than left
-    #   int is bigger than root but smaller than right
-    # if that happens, int is inserted and the rest of tree becomes children
-    # if left/right = nil, int becomes node instead of nil
-
 tree = Tree.new
-p arr = [2,3,4,5,7,8,19, 12, 12]
+p arr = [1, 2, 3, 4, 5, 6, 7]
 tree.build_tree(arr)
 tree.pretty_print
-tree.insert(6)
-tree.insert(11)
-tree.pretty_print
-
+# p tree.find(6)
+p tree.level_order
 
 
 
