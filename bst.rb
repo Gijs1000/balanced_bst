@@ -12,6 +12,10 @@ class Node
   def is_childless
     @left.nil? && @right.nil?
   end
+
+  def has_child?
+    !@left.nil? || !@right.nil?
+  end
 end
 
 class Tree
@@ -129,21 +133,81 @@ class Tree
     level_order(queue.shift, lo_array, queue)
   end
 
-  def inorder
-      
-    
+  def pre_order(current_node = @root, arr = [])
+    return arr if current_node.nil?
+
+    arr << current_node.data
+    pre_order(current_node.left, arr)
+    pre_order(current_node.right, arr)
+  end
+
+  def pre_order_nodes(current_node = @root, arr = [])
+    return arr if current_node.nil?
+
+    arr << current_node
+    pre_order_nodes(current_node.left, arr)
+    pre_order_nodes(current_node.right, arr)
+  end
 
 
+  def in_order(current_node = @root, arr = [])
+    return arr if current_node.nil?
 
+    in_order(current_node.left, arr)
+    arr << current_node.data
+    in_order(current_node.right, arr)
+  end
 
+  def post_order(current_node = @root, arr = [])
+    return arr if current_node.nil?
+
+    post_order(current_node.left, arr)
+    post_order(current_node.right, arr)
+    arr << current_node.data
+  end
+
+  def height(current_node = @root, height = 0)
+    return height - 1 if current_node.nil?
+  
+    height += 1
+    height_left = height(current_node.left, height)
+    height_right = height(current_node.right, height)
+    height_left > height_right ? height = height_left : height = height_right
+  end
+
+  def depth(node)
+    tree_height = height(@root)
+    node_height = height(node)
+    depth = tree_height - node_height
+  end
+
+  def balanced?
+    pre_order_nodes.all? { |node| height(node.left) == height(node.right) }
+  end
+
+  def rebalance
+    arr = in_order
+    build_tree(arr)
+  end
 end
 
 tree = Tree.new
-p arr = [1, 2, 3, 4, 5, 6, 7]
+p arr = Array.new(15) { rand(1..100) }
 tree.build_tree(arr)
 tree.pretty_print
-# p tree.find(6)
+p tree.balanced?
 p tree.level_order
-
-
-
+p tree.pre_order
+p tree.in_order
+p tree.post_order
+tree.insert(105)
+tree.insert(108)
+tree.insert(106)
+tree.pretty_print
+p tree.balanced?
+tree.rebalance
+tree.pretty_print
+p tree.level_order
+p tree.pre_order
+p tree.in_order
+p tree.post_order
